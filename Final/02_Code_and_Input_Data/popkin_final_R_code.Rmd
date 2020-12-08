@@ -1,0 +1,99 @@
+---
+title: "popkin_final"
+author: "Ken Popkin"
+date: "12/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(MASS)
+```
+
+<B><p style="color:blue">Load the data</p> </B>
+```{r}
+
+data = read.csv('C:\\Users\\Ken\\Documents\\00_Applications_DataScience\\CUNY\\DATA605\\Final\\house-prices-advanced-regression-techniques\\train.csv', header=TRUE)
+```
+<B><p style="color:blue">Problem 2</p> </B>
+<I> Calculus Based Probability and Statistics </I>
+Many times, it makes sense to fit a closed form distribution to data.  
+1. Select a variable in the Kaggle.com training dataset that is skewed to the right.  
+2. Load the MASS package and run fitdistr to fit an exponential probability density function.  (See  https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/fitdistr.html ).  
+3. Find the optimal value of lambda for this distribution 
+4. Take 1000 samples from this exponential distribution using this value (e.g., rexp(1000, lambda)).  
+5. Plot a histogram and compare it with a histogram of your original variable.   
+6. Using the exponential pdf, find the 5th and 95th percentiles using the cumulative distribution function (CDF).   
+7. Generate a 95% confidence interval from the empirical data, assuming normality.  
+8. Provide the empirical 5th percentile and 95th percentile of the data.  
+9. Discuss.
+
+<B><p style="color:black">1 Select a variable in the Kaggle.com training dataset that is skewed to the right. </p> </B>  
+```{r}
+basement = data$BsmtUnfSF
+
+basement = as.vector(basement)
+basement = gsub(",", "", basement)   # remove comma
+basement = as.numeric(basement)      # turn into numbers
+
+hist(basement)
+```
+<B><p style="color:black">2 Run fitdistr to fit an exponential probability density function. </p> </B>  
+```{r}
+
+fitdistr(basement,densfun = 'exponential')
+```
+
+<B><p style="color:black">3 Find the optimal value of lambda for this distribution  </p> </B>
+```{r}
+#lambda = 1/mean
+mean = mean(basement)
+lambda = 1/mean
+lambda
+```
+<B><p style="color:black">4 Take 1000 samples from this exponential distribution using this value (e.g., rexp(1000, lambda)).   </p> </B>
+```{r}
+basement_expdist = rexp(1000,lambda)
+```
+
+<B><p style="color:black">5 Plot a histogram and compare it with a histogram of your original variable.   </p> </B>
+Comparing the exponential distribution histogram below with the original histogram in step 1, shows similar characterics in that both are right skewed.  The exponential distribuition appears more right skewed, with more bins and a lower count per bin across the histogram.
+
+```{r}
+hist(basement_expdist)
+```
+<B><p style="color:black">6 Using the exponential pdf, find the 5th and 95th percentiles using the cumulative distribution function (CDF).  </p> </B>
+```{r}
+my_cdf = ecdf(basement_expdist)
+
+#From the chart below, the 5th percentile is 0 and the 95th percentile is 1.0
+
+plot(my_cdf)
+```
+
+<B><p style="color:black">7 Generate a 95% confidence interval from the empirical data, assuming normality.  </p> </B>
+```{r}
+confint = 1.96
+
+sem = sd(basement)/sqrt(length(basement))
+mean = mean(basement)
+
+lowercf = mean - (confint * sem)
+uppercf = mean + (confint * sem)
+
+cat('confidence level', lowercf, ' < ', mean, ' < ', uppercf)
+```
+
+<B><p style="color:black">8 Provide the empirical 5th percentile and 95th percentile of the data.  </p> </B>
+```{r}
+fifth = quantile(basement,0.05)
+ninety_fifth = quantile(basement, 0.95)
+
+cat('5th percentile is', fifth, '\n')
+cat('95th percentile is', ninety_fifth)
+```
+
+<B><p style="color:black">9 Discuss  </p> </B>
+Applying a closed form distribution to the data did not reveal new information to me.  Given a choice, I would not venture into applying closed form distribution to explore and derive information from the basement dataset.  I much prefer staying with the original data to derive the various confidence intervals and percentiles that this problem asks for.
+
